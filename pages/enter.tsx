@@ -44,7 +44,7 @@ export default function Enter(): JSX.Element {
         }
         
         // Username form
-        function UsernameForm() {
+        function UsernameForm(): JSX.Element {
         //value typed by user in form 
           const [formValue, setFormValue] = useState('');
         //is the username valid?
@@ -134,8 +134,6 @@ export default function Enter(): JSX.Element {
                     Choose
                   </button>
         
-        
-        
                   <h3>Debug State</h3>
                   <div>
                     Username: {formValue}
@@ -147,12 +145,12 @@ export default function Enter(): JSX.Element {
                 </form>
               </section>
             )
-          );
+          ) ;
         }
         
         
         //error messages
-        function UsernameMessage({ username, isValid, loading }: {username:any, isValid:any, loading: boolean}) {
+        function UsernameMessage({ username, isValid, loading }: {username:any, isValid:boolean, loading: boolean}) {
           if (loading) {
             return <p>Checking...</p>;
           } else if (isValid) {
