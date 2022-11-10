@@ -24,6 +24,8 @@
     "typescript": "4.8.4"
   },
   "devDependencies": {
+    "@types/lodash.debounce": "^4.0.7",
+    "@types/lodash.kebabcase": "^4.1.7",
     "autoprefixer": "^10.4.13",
     "lodash.kebabcase": "^4.1.1",
     "postcss": "^8.4.18",
