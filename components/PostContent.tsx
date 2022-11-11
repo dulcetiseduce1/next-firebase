@@ -7,15 +7,16 @@ export default function PostContent({ post }: { post: any }) {
 
     return (
         <div className="card">
-            <h1>{post?.title}</h1>
+            <h1>{post?.title}</h1>    
+            <ReactMarkdown>{post?.content}</ReactMarkdown>
             <span className="text-sm">
                 Written by{' '}
                 <Link href={`/${post.username}/`}>
-                    <h1 className="text-info">@{post.username}</h1>
+                    <p className="text-info">@{post.username}</p>
                 </Link>{' '}
                 on {createdAt.toISOString()}
             </span>
-            <ReactMarkdown>{post?.content}</ReactMarkdown>
+  
         </div>
     );
 }
