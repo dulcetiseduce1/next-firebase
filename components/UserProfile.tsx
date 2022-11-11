@@ -2,11 +2,10 @@
 export default function UserProfile({ user }: { user: any }) {
   return (
     <div className="box-center">
-      <img src={user.photoURL || '/hacker.png'} width={150} height={150} className="card-img-center" />
+      <img src={user.photoURL || '/hacker.png'}className="card-img-center" />
       <p>
-        <i>@{user.username}</i>
+        <h1>@{user.username || 'Anonymous User'}</h1>
       </p>
-      <h1>{user.displayName || 'Anonymous User'}</h1>
     </div>
   );
 }
