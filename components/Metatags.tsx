@@ -3,7 +3,7 @@ import Head from 'next/head';
 export default function Metatags({
     title = 'Podas',
     description = 'Social Test',
-    image = 'https://imgur.com/a/VO9yTMk',
+    image = 'https://i.imgur.com/BKQjtJL.png',
 }): JSX.Element {
     return (
         <Head>
