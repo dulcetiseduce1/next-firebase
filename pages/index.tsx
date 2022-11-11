@@ -63,7 +63,7 @@ const Home: NextPage = (props: any) => {
 
   return (
     <main>
-      <Metatags title="Home Page" description="Get the latest posts on our site" />
+      <Metatags title="Podas" description="test" />
 
       <div className="card card-info">
         <h2>💡 Next.js + Firebase</h2>
