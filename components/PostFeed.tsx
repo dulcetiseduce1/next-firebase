@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+
 
 export default function PostFeed({ posts, admin = false }: { posts: any[], admin?: boolean }) {
     return posts && posts.length ? <>{posts.map((post: any, i: number) => <PostItem post={post} key={i} admin={admin} />)}</> : <></>;
@@ -14,6 +16,8 @@ function PostItem({ post, admin }: { post: any, admin: boolean }) {
             <Link passHref href={`/${post.username}/${post.slug}`}>
                 <h1>
                     {post.title}
+                    <ReactMarkdown>{post?.content}</ReactMarkdown>
+
                 </h1>
             </Link>
             
