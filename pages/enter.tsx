@@ -44,7 +44,7 @@ export default function Enter(): JSX.Element {
         }
         
         // Username form
-        function UsernameForm(): JSX.Element {
+        function UsernameForm(): JSX.Element | null {
         //value typed by user in form 
           const [formValue, setFormValue] = useState('');
         //is the username valid?
@@ -145,7 +145,7 @@ export default function Enter(): JSX.Element {
                 </form>
               </section>
             )
-          ) ;
+          ) || null;
         }
         
         
