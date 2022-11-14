@@ -7,7 +7,6 @@ import { signInWithPopup, signOut } from 'firebase/auth';
 // debounce so when we type we only check after input is done
 import debounce from 'lodash.debounce';
 
-
 export default function Enter(): JSX.Element {
     const { user, username } = useContext(UserContext);
           // 1. user signed out <SignInButton />

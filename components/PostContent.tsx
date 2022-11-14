@@ -16,7 +16,6 @@ export default function PostContent({ post }: { post: any }) {
                 </Link>{' '}
                 on {createdAt.toISOString()}
             </span>
-  
         </div>
     );
 }
