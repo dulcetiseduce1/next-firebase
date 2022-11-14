@@ -192,6 +192,15 @@ button.btn-logo {
 }
 
 /* Loader */
+.fade {
+  opacity: 0;
+  animation-duration:3s;
+}
+
+@keyframes fade {
+  0% {opacity: 0;}
+  100% {opacity: 100;}
+}
 
 .loader {
   border: 10px solid var(--color-bg); 

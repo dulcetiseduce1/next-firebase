@@ -1,84 +1,167 @@
-import type { GetServerSideProps, NextPage } from 'next';
-import PostFeed from '@components/PostFeed';
-import Loader from '@components/Loader';
-import { postToJSON } from '@lib/firebase';
-import { Timestamp, query, where, orderBy, limit, collectionGroup, getDocs, startAfter, getFirestore } from 'firebase/firestore';
-
-import { useState } from 'react';
-import Metatags from '@components/Metatags';
-
-// Max post to query per page
-const LIMIT = 10;
-
-export const getServerSideProps: GetServerSideProps = async () => {
-
-  const ref = collectionGroup(getFirestore(), 'posts');
-  const postsQuery = query(
-    ref,
-    where('published', '==', true),
-    orderBy('createdAt', 'desc'),
-    limit(LIMIT)
-  )
-
-  const posts = (await getDocs(postsQuery)).docs.map(postToJSON);
-
-  return {
-    props: { posts }, // will be passed to the page component as props
-  };
-}
+import { auth, googleAuthProvider } from '@lib/firebase';
+//context
+import { UserContext } from '@lib/context';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { doc, getDoc, getFirestore, writeBatch } from 'firebase/firestore';
+import { signInWithPopup, signOut } from 'firebase/auth';
+// debounce so when we type we only check after input is done
+import debounce from 'lodash.debounce';
+import Redirect from '@components/Redirect';
 
 
-const Home: NextPage = (props: any) => {
-  const [posts, setPosts] = useState(props.posts);
-  const [loading, setLoading] = useState(false);
-
-  const [postsEnd, setPostsEnd] = useState(false);
-
-
-  // Get next page in pagination query
-  const getMorePosts = async (): Promise<void> => {
-    setLoading(true);
-    const last = posts[posts.length - 1];
-
-    const cursor = last && last.createdAt ? typeof last.createdAt === 'number' ? Timestamp.fromMillis(last.createdAt) : last.createdAt : null;
-
-    const ref = collectionGroup(getFirestore(), 'posts'); 
-    const postsQuery = query(
-      ref,
-      where('published', '==', true),
-      orderBy('createdAt', 'desc'),
-      startAfter(cursor),
-      limit(LIMIT),
-    );
-
-    const newPosts = (await getDocs(postsQuery)).docs.map((doc) => doc.data());
-
-    setPosts(posts.concat(newPosts));
-    setLoading(false);
-
-    if (newPosts.length < LIMIT) {
-      setPostsEnd(true);
-    }
-  };
-
-  return (
-    <main>
-      <Metatags title="Podas" description="test" />
-
-      <div className="card card-info">
-        <h2>💡 Next.js + Firebase</h2>
-        <p>Sign up for an 👨‍🎤 account, ✍️ write posts, then 💞 heart content created by other users. All public content is server-rendered and search-engine optimized.</p>
-      </div>
-
-      <PostFeed posts={posts} />
-
-      {!loading && !postsEnd && <button onClick={getMorePosts}>Load more</button>}
-
-      <Loader show={loading} />
-
-      {postsEnd && 'You have reached the end!'}
-    </main>
-  );
-}
-
-export default Home
+export default function Enter(): JSX.Element {
+    const { user, username } = useContext(UserContext);
+          // 1. user signed out <SignInButton />
+          // 2. user signed in, but missing username <UsernameForm />
+          // 3. user signed in, has username <SignOutButton />
+          return (
+            <main>
+              {user ? 
+                !username ? <UsernameForm /> : <Redirect /> 
+                : 
+                <SignInButton />
+              }
+            </main>
+          );
+        }
+        
+        // Sign in with Google button
+        function SignInButton() {
+          const signInWithGoogle = async () => {
+            await signInWithPopup(auth, googleAuthProvider)
+          };
+        
+          return (
+            <>
+              <button className="btn-google" onClick={signInWithGoogle}>
+                <img src={'/google.png'} width="30px" /> Sign in with Google
+              </button>
+            </>
+          );
+        }
+        
+        // Sign out button
+        // function SignOutButton() {
+        //   return <button onClick={() => signOut(auth)}>Sign Out</button>;
+        // }
+        
+        // Username form
+        function UsernameForm(): JSX.Element | null {
+        //value typed by user in form 
+          const [formValue, setFormValue] = useState('');
+        //is the username valid?
+          const [isValid, setIsValid] = useState(false);
+        //check true async when we check if username exists
+          const [loading, setLoading] = useState(false);
+        //grab user and username from global context
+          const { user, username } = useContext(UserContext);
+        
+          const onSubmit = async (e:any) => {
+            //prevent refresh of page onsubmit of form
+            e.preventDefault();
+        
+            // Create refs for both documents
+            const userDoc = doc(getFirestore(), 'users', user.uid);
+            const usernameDoc = doc(getFirestore(), 'usernames', formValue);
+        
+            // Commit both docs together as a batch write.
+            const batch = writeBatch(getFirestore());
+            batch.set(userDoc, { username: formValue, photoURL: user.photoURL, displayName: user.displayName });
+            batch.set(usernameDoc, { uid: user.uid });
+        
+            await batch.commit();
+          };
+        
+        //checks when we type
+          const onChange = (e:any) => {
+            // Force form value typed in form to match correct format
+            const val = e.target.value.toLowerCase();
+            const re = /^(?=[a-zA-Z0-9._]{3,15}$)(?!.*[_.]{2})[^_.].*[^_.]$/;
+        
+            // Only set form value if length is < 3 OR it passes regex
+            if (val.length < 3) {
+              setFormValue(val);
+              setLoading(false);
+              setIsValid(false);
+            }
+        
+            if (re.test(val)) {
+              setFormValue(val);
+              setLoading(true);
+              setIsValid(false);
+            }
+          };
+        
+          // listen to form value when it changes
+          // it executes a read on database
+        
+          useEffect(() => {
+            //runs checkUsername
+            checkUsername(formValue);
+          }, [formValue]);
+        
+          // Hit the database for username match after each debounced change
+          
+          // useCallback is required for debounce to work
+          const checkUsername = useCallback(
+            // lodash debounce 
+            debounce(async (username:any) => {
+              if (username.length >= 3) {
+                //check username in databse
+                const ref = doc(getFirestore(), 'usernames', username);
+                const snap = await getDoc(ref);
+                console.log('Firestore read executed!', snap.exists());
+                setIsValid(!snap.exists());
+                setLoading(false);
+              }
+            }, 500),
+            []
+          );
+        
+          //form onSubmit we monitor the value
+          //value is formValue handler for change onChange
+          //button submit disabled if its not valid
+          return (
+            !username && (
+              <section>
+                <div className='fade'>
+                <h3>Choose Username</h3>
+        
+                <form onSubmit={onSubmit}>
+        
+                  <input name="username" placeholder="myname" value={formValue} onChange={onChange} />
+        
+                  <UsernameMessage username={formValue} isValid={isValid} loading={loading} />
+        
+                  <button type="submit" className="btn-green" disabled={!isValid}>
+                    Choose
+                  </button>
+        
+                  <h3>Debug State</h3>
+                  <div>
+                    Username: {formValue}
+                    <br />
+                    Loading: {loading.toString()}
+                    <br />
+                    Username Valid: {isValid.toString()}
+                  </div>
+                </form>
+                </div>
+              </section>
+            )
+          ) || null;
+        }
+        
+        
+        //error messages
+        function UsernameMessage({ username, isValid, loading }: {username:any, isValid:boolean, loading: boolean}) {
+          if (loading) {
+            return <p>Checking...</p>;
+          } else if (isValid) {
+            return <p className="text-success">{username} is available!</p>;
+          } else if (username && !isValid) {
+            return <p className="text-danger">That username is taken!</p>;
+          } else {
+            return <p></p>;
+          }
+        }

@@ -11,7 +11,7 @@ export default function Custom404(): JSX.Element {
                 frameBorder="0"
                 allowFullScreen
             ></iframe>
-            <Link passHref href="/">
+            <Link passHref href="/index">
                 <button className="btn-blue">Go home</button>
             </Link>
         </main>

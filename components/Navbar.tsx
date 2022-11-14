@@ -4,7 +4,7 @@ import { UserContext } from "@lib/context";
 import { useRouter } from "next/router";
 import { signOut } from "firebase/auth";
 import { auth } from "@lib/firebase";
-
+import RedirectLogin from "./RedirectLogin";
 // Top navbar
 export default function Navbar(): JSX.Element {
   const { user, username } = useContext(UserContext);
@@ -13,21 +13,21 @@ export default function Navbar(): JSX.Element {
 
   const signOutNow = () => {
     signOut(auth);
-    router.reload();
+    <RedirectLogin/>
   };
 
   return (
     <nav className="navbar">
       <ul>
-        <li>
-          <Link passHref={true} href="/">
-            <button className="btn-logo">FEED</button>
-          </Link>
-        </li>
-
+        
         {/* user is signed-in and has username */}
         {username && (
-          <>
+          <> 
+          <li>
+          <Link passHref={true} href="/home">
+            <button className="btn-logo">FEED</button>
+          </Link>
+          </li>
             <li className="push-left">
               <button onClick={signOutNow}>Sign Out</button>
             </li>
@@ -48,12 +48,10 @@ export default function Navbar(): JSX.Element {
           </>
         )}
 
-        {/* user is not signed OR has not created username */}
+
         {!username && (
           <li>
-            <Link passHref href="/enter">
-              <button className="btn-blue">Log in</button>
-            </Link>
+            <RedirectLogin/>
           </li>
         )}
       </ul>
