@@ -15,10 +15,11 @@ function PostItem({ post, admin }: { post: any, admin: boolean }) {
         <div className="card">
             <Link passHref href={`/${post.username}/${post.slug}`}>
                 <h1>
-                    {post.title}
-                    <ReactMarkdown>{post?.content}</ReactMarkdown>
-
+                    {post.title},
                 </h1>
+                <h2>
+                    {post.content}
+                </h2>
             </Link>
             
             <Link href={`/${post.username}`}>
