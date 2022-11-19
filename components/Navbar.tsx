@@ -4,7 +4,7 @@ import { UserContext } from "@lib/context";
 import { useRouter } from "next/router";
 import { signOut } from "firebase/auth";
 import { auth } from "@lib/firebase";
-import RedirectLogin from "./RedirectLogin";
+import RedirectLogin from "@components/RedirectLogin";
 // Top navbar
 export default function Navbar(): JSX.Element {
   const { user, username } = useContext(UserContext);

@@ -1,5 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { auth, googleAuthProvider } from '@lib/firebase';
+import { useEffect} from 'react';
 import { useRouter } from "next/router";
 
 export default function Redirect() {
